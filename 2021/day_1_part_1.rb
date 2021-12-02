@@ -1,4 +1,4 @@
-# frozen_string_litertal: true
+# frozen_string_literal: true
 
 depths = []
 

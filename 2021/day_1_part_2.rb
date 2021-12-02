@@ -1,4 +1,4 @@
-# frozen_string_litertal: true
+# frozen_string_literal: true
 
 depths = []
 
@@ -6,8 +6,8 @@ DATA.each_line do |line|
   depths << line.strip.to_i
 end
 
-windows = depths.each_with_index.map do |depth, index|
-  depths[index..index+2].reduce(:+)
+windows = depths.each_with_index.map do |_, index|
+  depths[index..index + 2].reduce(:+)
 end.slice(0..-3)
 
 result = 0
