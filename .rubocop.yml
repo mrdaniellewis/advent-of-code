@@ -3,3 +3,9 @@ Style/StringLiterals:
 
 Style/AsciiComments:
   Enabled: false
+
+Style/NumberPredicate:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
