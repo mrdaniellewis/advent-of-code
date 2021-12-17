@@ -24,3 +24,9 @@ Metrics/AbcSize:
 
 Style/GlobalVars:
   Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
