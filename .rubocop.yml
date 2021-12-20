@@ -7,6 +7,9 @@ Style/AsciiComments:
 Style/NumericPredicate:
   Enabled: false
 
+Style/MultilineBlockChain:
+  Enabled: false
+
 Metrics/PerceivedComplexity:
   Enabled: false
 
