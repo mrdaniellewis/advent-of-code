@@ -64,7 +64,7 @@ end
 
 debug(image)
 
-2.times do |time|
+50.times do |time|
   pp time
 
   new_image = Hash.new { Hash.new { false } }
