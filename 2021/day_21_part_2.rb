@@ -5,7 +5,7 @@ require "byebug"
 $player_1_position = DATA.readline[/starting position: (\d+)/, 1].to_i
 $player_2_position = DATA.readline[/starting position: (\d+)/, 1].to_i
 
-# Probably could cache these results to sped it up
+# Optimisation: Probably could cache these results to speed it up
 def next_pos(pos, increment)
   pos -= 1
   pos += increment
@@ -13,7 +13,7 @@ def next_pos(pos, increment)
   pos + 1
 end
 
-# Probably could cache these results to sped it up
+# Optimisation: Probably could cache these results to speed it up
 def play(dice, player, pos)
   roll = player
   score = 0
@@ -41,17 +41,18 @@ def plays(dice = [])
     (3..9).each do |roll1|
       pp roll1 if dice == []
       p1_dice = [*dice, roll1]
+      # Optimisation: Don't really need to start play from scratch each time
       result = play(p1_dice, 0, $player_1_position)
       if result
         yielder << [0, p1_dice]
-        # Could also yield the remaining results for roll1 as these will all pass
+        # Optimisation: Could also yield the remaining results for roll1 as these will all pass
       else
         (3..9).each do |roll2|
           p2_dice = [*p1_dice, roll2]
           result = play(p2_dice, 1, $player_2_position)
           if result
             yielder << [1, p2_dice]
-            # Could also yield the remaining results for roll2 as these will all pass
+            # Optimisation: Could also yield the remaining results for roll2 as these will all pass
           else
             plays(p2_dice).each do |d|
               yielder << d
