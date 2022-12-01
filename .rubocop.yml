@@ -10,6 +10,9 @@ Style/NumericPredicate:
 Style/MultilineBlockChain:
   Enabled: false
 
+Style/MutableConstant:
+  Enabled: false
+
 Metrics/PerceivedComplexity:
   Enabled: false
 
