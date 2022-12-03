@@ -10,6 +10,9 @@ Style/NumericPredicate:
 Style/MultilineBlockChain:
   Enabled: false
 
+Style/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
 Style/MutableConstant:
   Enabled: false
 
