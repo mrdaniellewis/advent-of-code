@@ -5,7 +5,7 @@ data = $stdin.read
 result = data
   .split("\n")
   .flat_map do
-    first, second = _1.chars.each_slice(_1.length / 2).map(&:to_a)
+    first, second = _1.chars.each_slice(_1.length / 2).to_a
     first & second
   end
   .map(&:ord)
