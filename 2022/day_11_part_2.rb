@@ -28,7 +28,7 @@ data.each_line(chomp: true) do |line|
   end
 end
 
-$primes = $monkeys.map(&:test).sort
+$primes = $monkeys.map(&:test).uniq.sort
 
 $monkeys.each do |monkey|
   # For each prime used as a test
