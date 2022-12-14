@@ -51,17 +51,9 @@ count = 1
   (500 - i..500 + i).each do |x|
     next if grid[Vector[x, y]]
 
-    free = grid[Vector[x, y] + UP] == "o"
-    free ||= (1..i).any? do |t|
-      value = grid[Vector[x, y] + LEFT * t]
-      break true if value == "o"
-      break false if value == "#"
-    end
-    free ||= (1..i).any? do |t|
-      value = grid[Vector[x, y] + RIGHT * t]
-      break true if value == "o"
-      break false if value == "#"
-    end
+    free = grid[Vector[x, y] + UP] == "o" ||
+           grid[Vector[x, y] + LEFT] == "o" ||
+           grid[Vector[x, y] + RIGHT] == "o"
 
     next unless free
 
