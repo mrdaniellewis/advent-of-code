@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# Fill the whole thing with sand
-# Each line of rock creates a triangle of inaccessibility
-# Subject those and any rock
-
 require "matrix"
 
 data = $stdin.read
