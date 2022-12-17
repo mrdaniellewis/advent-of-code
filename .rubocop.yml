@@ -16,6 +16,9 @@ Style/MultilineMethodCallIndentation:
 Style/MutableConstant:
   Enabled: false
 
+Metrics:
+  Enabled: false
+
 Metrics/BlockLength:
   Enabled: false
 
