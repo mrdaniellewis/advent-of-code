@@ -25,19 +25,6 @@ def rebuild(code)
   end
 end
 
-def rebuild_reverse(code)
-  cursor = 0
-  Enumerator.new do |y|
-    loop do
-      p, v = code[cursor]
-      y << v
-      cursor = p
-
-      break if cursor == 0
-    end
-  end
-end
-
 10.times do
   code.each_with_index do |(p, v, n), i|
     next if v == 0
@@ -53,7 +40,7 @@ end
     code[n][2] = nn
 
     # Find new position
-    # It is a loop so we'll keep tracking forward
+    # It is a loop so we can mod the distance
 
     newp = p
     newn = n
