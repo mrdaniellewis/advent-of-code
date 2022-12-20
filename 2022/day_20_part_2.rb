@@ -43,12 +43,14 @@ end
     next if v == 0
 
     # Remove self and join current positions
-    pp, pv, pn = code[p]
-    np, nv, nn = code[n]
+    pp, _, pn = code[p]
+    np, _, nn = code[n]
     raise if pn != np
 
-    code[p] = [pp, pv, n]
-    code[n] = [p, nv, nn]
+    code[p][0] = pp
+    code[p][2] = n
+    code[n][0] = p
+    code[n][2] = nn
 
     # Find new position
     # It is a loop so we'll keep tracking forward
@@ -70,14 +72,15 @@ end
     end
 
     # insert self into new position
-    pp, pv, pn = code[newp]
-    np, nv, nn = code[newn]
+    _, _, pn = code[newp]
+    np, = code[newn]
     raise if newp != np
     raise if newn != pn
 
-    code[newp] = [pp, pv, i]
-    code[newn] = [i, nv, nn]
-    code[i] = [newp, v, newn]
+    code[newp][2] = i
+    code[newn][0] = i
+    code[i][0] = newp
+    code[i][2] = newn
   end
 end
 
