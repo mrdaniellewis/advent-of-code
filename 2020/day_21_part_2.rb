@@ -10,11 +10,6 @@ data.split("\n").each_with_index do |line, food|
   listed_ingrediants = listed_ingrediants.split(" ")
   listed_allergens = listed_allergens&.split(", ") || []
 
-  listed_ingrediants.each do |ingrediant|
-    ingrediants[ingrediant] ||= []
-    ingrediants[ingrediant] << food
-  end
-
   listed_allergens.each do |allergen|
     allergens[allergen] ||= {}
     listed_ingrediants.each do |ingrediant|
@@ -24,19 +19,26 @@ data.split("\n").each_with_index do |line, food|
   end
 end
 
-potential_allergens = []
-
 allergens.each do |_allergen, potential_ingrediants|
   max = potential_ingrediants.values.map(&:length).max
-  potential_ingrediants.each do |ingrediant, foods|
-    potential_allergens << ingrediant if foods.length == max
+  potential_ingrediants.select! do |_ingrediant, foods|
+    foods.length == max
   end
 end
 
-ingrediants
-  .reject do |ingrediant|
-    potential_allergens.include?(ingrediant)
+loop do
+  allergen, ingredient_hash = allergens.find { _2.length == 1 }
+  break unless allergen
+
+  ingredient = ingredient_hash.keys.first
+
+  ingrediants[ingredient] = allergen
+
+  allergens.delete(allergen)
+
+  allergens.each do |_, potential_ingrediants|
+    potential_ingrediants.reject! { _1 == ingredient }
   end
-  .map { _2.length }
-  .sum
-  .then { puts _1 }
+end
+
+puts ingrediants.to_a.sort_by { _2 }.map(&:first).join(",")
