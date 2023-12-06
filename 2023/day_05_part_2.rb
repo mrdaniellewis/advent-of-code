@@ -33,10 +33,6 @@ mappings.each { _1.sort_by! { |(source)| source.begin } }
 loop do
   mapping = mappings.shift
 
-  pp seeds
-  pp mapping
-  pp seed_length = seeds.map(&:size).sum
-
   seeds = seeds.flat_map do |seed|
     new_seeds = []
     mapping.each do |(source, destination)|
@@ -56,10 +52,13 @@ loop do
           destination.begin + ([seed.end, source.end].min - source.begin)
         )
       end
+
       if source.include?(seed.end)
+        # Nothing after
         seed = nil
         break
       elsif seed.end > source.end && source.overlaps?(seed)
+        # partly after
         seed = Range.new(source.end + 1, seed.end)
       end
     end
@@ -71,5 +70,4 @@ loop do
   break if mappings.empty?
 end
 
-pp seeds
 pp seeds.map(&:begin).min

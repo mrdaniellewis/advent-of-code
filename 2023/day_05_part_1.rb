@@ -18,7 +18,7 @@ data.split("\n").each do |line|
     current_map = {}
   in [nil, nil, nil, numbers]
     destination, source, length = numbers.split(" ").map(&:to_i)
-    current_map[Range.new(source, source + length)] = Range.new(destination, destination + length)
+    current_map[Range.new(source, source + length - 1)] = Range.new(destination, destination + length - 1)
   end
 end
 
