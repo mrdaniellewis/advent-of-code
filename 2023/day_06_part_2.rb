@@ -6,8 +6,12 @@ data.split("\n").map do |line|
   line.gsub(/\D+/, "").strip.to_i
 end => time, distance
 
-(0..time)
-  .to_a
-  .select { (time - _1) * _1 > distance }
-  .length
-  .then { puts _1 }
+lower = (0..time).bsearch do |v|
+  (time - v) * v > distance
+end
+
+upper = (lower..time).bsearch do |v|
+  (time - v) * v <= distance
+end
+
+pp upper - lower
