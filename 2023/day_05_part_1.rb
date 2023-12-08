@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require "debug"
-
-data = ARGF.read
-
 seeds = nil
 maps = []
 current_map = {}
 
-data.split("\n").each do |line|
+ARGF.read.split("\n").each do |line|
   case /^(?:(\w+)-to-(\w+) )?(?:(map|seeds): ?)?((?:\d+ ?)+)?$/.match(line).captures
   in [_, _, "seeds", numbers]
     seeds = numbers.split(" ").map(&:to_i)

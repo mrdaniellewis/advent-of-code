@@ -16,13 +16,11 @@ class Range
   end
 end
 
-data = ARGF.read
-
 seeds = nil
 mappings = []
 current_map = []
 
-data.split("\n").each do |line|
+ARGF.read.split("\n").each do |line|
   case /^(?:(\w+)-to-(\w+) )?(?:(map|seeds): ?)?((?:\d+ ?)+)?$/.match(line).captures
   in [_, _, "seeds", numbers]
     seeds = numbers.split(" ").map(&:to_i).each_slice(2).map { Range.new(_1, _1 + _2 - 1) }

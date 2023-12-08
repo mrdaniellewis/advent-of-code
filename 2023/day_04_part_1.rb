@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-data = $stdin.read
-
 Card = Struct.new(:card, :winning, :having)
 
-cards = data.split("\n").map do |line|
+cards = ARGF.read.split("\n").map do |line|
   card, winning, having = /^Card\s+(\d+):([^|]+)\|(.+)$/.match(line).captures
 
   Card.new(

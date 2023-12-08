@@ -2,8 +2,6 @@
 
 require "matrix"
 
-data = $stdin.read
-
 grid = {}
 part_numbers = []
 parts = []
@@ -11,7 +9,7 @@ parts = []
 Part = Struct.new(:position, :value)
 PartNumber = Struct.new(:start, :end, :value)
 
-data.split("\n").each_with_index do |line, y|
+ARGF.read.split("\n").each_with_index do |line, y|
   number = nil
 
   line.chars.each_with_index do |c, x|

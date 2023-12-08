@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-data = $stdin.read
-
-games = data.split("\n").to_h do |line|
+games = ARGF.read.split("\n").to_h do |line|
   num, plays = /^Game (\d+): (.*)$/.match(line).captures
   plays = plays.split("; ").map do |draws|
     draws.split(", ").to_h do |draw|
