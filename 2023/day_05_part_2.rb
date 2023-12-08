@@ -6,6 +6,14 @@ class Range
   def overlaps?(other)
     cover?(other.first) || other.cover?(first)
   end
+
+  def bisect(other)
+    [
+      (Range.new(min, [other.min - 1, max].min) if min < other.min),
+      (Range.new([min, other.min].max, [other.max, max].min) if overlaps?(other)),
+      (Range.new([min, other.max + 1].max, max) if max > other.max)
+    ]
+  end
 end
 
 data = ARGF.read
@@ -36,30 +44,20 @@ loop do
   seeds = seeds.flat_map do |seed|
     new_seeds = []
     mapping.each do |(source, destination)|
-      # Entirely before
-      if seed.end < source.begin
-        new_seeds << seed
-        seed = nil
-        break
+      before, inside, after = seed.bisect(source)
+
+      new_seeds << before if before
+
+      if inside
+        diff = destination.first - source.first
+        new_seeds << Range.new(inside.first + diff, inside.last + diff)
       end
 
-      # Partly before
-      new_seeds << Range.new(seed.begin, source.begin - 1) if seed.begin < source.begin && source.overlaps?(seed)
-
-      if source.overlaps?(seed)
-        new_seeds << Range.new(
-          destination.begin + ([seed.begin, source.begin].max - source.begin),
-          destination.begin + ([seed.end, source.end].min - source.begin)
-        )
-      end
-
-      if source.include?(seed.end)
-        # Nothing after
+      if after
+        seed = after
+      else
         seed = nil
         break
-      elsif seed.end > source.end && source.overlaps?(seed)
-        # partly after
-        seed = Range.new(source.end + 1, seed.end)
       end
     end
 
