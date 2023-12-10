@@ -2,7 +2,7 @@
 
 require "matrix"
 
-DIRECTIONS_3D = ([-1, 0, 1].repeated_permutation(3) - [[0, 0, 0]]).map { Vector.elements _1 }
+DIRECTIONS_3D = ([-1, 0, 1].repeated_permutation(3).to_a - [[0, 0, 0]]).map { Vector.elements _1 }
 
 ROTATE_X = Matrix[[1, 0, 0], [0, 0, -1], [0, 1, 0]]
 ROTATE_Y = Matrix[[0, 0, 1], [0, 1, 0], [-1, 0, 0]]
