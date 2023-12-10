@@ -8,19 +8,22 @@ rescue Errno::ENOENT
 end
 
 numbers = data.split(",").map(&:to_i)
-last_numbers = numbers.each_with_index.to_h { [_1, [_2 + 1, _2 + 1]] }
+last_a = []
+last_b = []
+numbers.each_with_index do |n, i|
+  last_a[n] = i + 1
+  last_b[n] = i + 1
+end
 turn = numbers.length
-last = numbers.last
+last = 0
 
-values = [*numbers]
-
-until turn == 30_000_000
-  last = last_numbers[last] ? last_numbers[last][-1] - last_numbers[last][-2] : 0
-  values << last
+loop do
   turn += 1
-  last_numbers[last] ||= [turn]
-  last_numbers[last][0] = last_numbers[last][1] || turn
-  last_numbers[last][1] = turn
+  break if turn == 30_000_000
+
+  last_a[last] = b = last_b[last] || turn
+  last_b[last] = turn
+  last = turn - b
 end
 
 pp last
