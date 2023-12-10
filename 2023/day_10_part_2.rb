@@ -99,7 +99,7 @@ end
 fill_in(grid, left)
 fill_in(grid, right)
 
-debug(grid, { "L" => left, "R" => right }, missing: "◈".red)
+debug(grid, { "L".blue => left, "R".green => right }, missing: "◈".red)
 
 inside = left.to_a.map { _1[0] }.min < right.to_a.map { _1[0] }.min ? right : left
 pp inside.size
