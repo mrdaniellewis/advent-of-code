@@ -17,7 +17,7 @@ class ShuntingYard
       break if token.nil?
 
       case token
-      when Number
+      when Numeric
         stack << token
       when PRECEDENCE[token]
         while operators.last &&
@@ -49,7 +49,7 @@ class ShuntingYard
 
   def resolve(parsed)
     parsed.each_with_object([]) do |i, stack|
-      stack << i if i.is_a? Integer
+      stack << i if i.is_a? Numeric
       stack << stack.pop.send(i.to_sym, stack.pop) if i.is_a? String
     end[0]
   end
