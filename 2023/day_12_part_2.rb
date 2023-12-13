@@ -9,7 +9,7 @@ lines = data.map do |line|
 end
 
 def combinations((springs, groups))
-  possibilities = [[0, false]]
+  possibilities = [[1, false]]
   pos = 0
   until pos == springs.length
     case springs[pos]
@@ -44,24 +44,19 @@ def combinations((springs, groups))
       true
     end
 
-    pp [pos, possibilities.tally, possibilities.count]
-    tally = possibilities.tally
-    possibilities.uniq!
-    possibilities.each do |p|
-      p[0] = tally[p]
+    possibilities = possibilities.group_by { _1[1..] }.to_a.map do |k, v|
+      [v.map { _1[0] }.sum, *k]
     end
     pos += 1
   end
 
   possibilities.select! { _1[2..] == groups }
-  pp possibilities.count
-  possibilities.count
+  possibilities.map { _1[0] }.sum
 end
 
 lines
-  .slice(1, 1)
   .map do |(springs, groups)|
-    pp combinations([([springs] * 5).join("?"), groups * 5])
+    combinations([([springs] * 5).join("?"), groups * 5])
   end
   .sum
   .then { pp _1 }
