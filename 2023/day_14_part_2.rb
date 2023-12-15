@@ -59,17 +59,43 @@ DIRECTIONS = [[V[0, -1], 1, ymin], [V[-1, 0], 0, xmin], [V[0, 1], 1, ymax], [V[1
 
 history = {}
 
-def match_length(items)
-  return nil unless items.length >= 10
+module Enumerable
+  # Find the start and length of a cycle using floyd
+  def find_cycle_floyd
+    hare_enum = to_enum
+    tortoise_enum = to_enum
+    hare = nil
+    return nil unless loop do
+      tortoise = tortoise_enum.next
+      hare_enum.next
+      hare = hare_enum.next
+      break true if hare == tortoise
+    end
 
-  (1..items.length / 2).each do |len|
-    return len if items.each_slice(len).take(2).uniq.count == 1
+    i = 0
+    tortoise_enum = to_enum
+    tortoise = nil
+    until tortoise == hare
+      hare = hare_enum.next
+      tortoise = tortoise_enum.next
+      i += 1
+    end
+
+    len = 1
+    hare = tortoise_enum.next
+    until tortoise == hare
+      hare = tortoise_enum.next
+      len += 1
+    end
+
+    [i - 1, len]
+  rescue StopIteration
+    nil
   end
-  nil
 end
 
 history = []
-repeat_length = 0
+cycle = nil
 
 loop do
   cycles += 1
@@ -78,9 +104,10 @@ loop do
   history.unshift([debug(grid), grid])
 
   pp cycles
-  break if (repeat_length = match_length(history.map(&:first)))
+  break if (cycle = history.map(&:first).find_cycle_floyd)
 end
 
+_, repeat_length = cycle
 left = 1_000_000_000 - cycles
 shift = left % repeat_length
 
