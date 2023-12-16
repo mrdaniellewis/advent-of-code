@@ -11,7 +11,6 @@ MIRRORS = ARGF.each_line.map(&:chomp).each_with_object({}).with_index do |(line,
   end
 end
 
-MOVES = [[0, -1], [1, 0], [0, 1], [-1, 0]].map { V[_1, _2] }
 LEFT = Matrix[[0, 1], [-1, 0]]
 RIGHT = Matrix[[0, -1], [1, 0]]
 IDENTITY = Matrix.identity(2)
