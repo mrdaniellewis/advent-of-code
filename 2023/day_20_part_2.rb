@@ -4,41 +4,6 @@ require "prime"
 
 Sig = Data.define(:from, :to, :value)
 
-module Enumerable
-  # Find the start and length of a cycle using floyd
-  def find_cycle_floyd
-    hare_enum = to_enum
-    tortoise_enum = to_enum
-    hare = nil
-    return nil unless loop do
-      tortoise = tortoise_enum.next
-      hare_enum.next
-      hare = hare_enum.next
-      break true if hare == tortoise
-    end
-
-    i = 0
-    tortoise_enum = to_enum
-    tortoise = nil
-    until tortoise == hare
-      hare = hare_enum.next
-      tortoise = tortoise_enum.next
-      i += 1
-    end
-
-    len = 1
-    hare = tortoise_enum.next
-    until tortoise == hare
-      hare = tortoise_enum.next
-      len += 1
-    end
-
-    [i - 1, len]
-  rescue StopIteration
-    nil
-  end
-end
-
 class Mod
   attr_accessor :name, :connections
   attr_writer :outputs
@@ -182,6 +147,7 @@ Mod.modules.each_value do |mod|
   end
 end
 
+# Can be used to visualise the problem
 def to_graphviz
   Mod.modules.values.map do |m|
     m.outputs.flat_map do |o|
@@ -191,7 +157,7 @@ def to_graphviz
         "#{m.name} -> #{o.name}"
       ]
     end
-  end.join("\n")
+  end.join("\n").then { "digraph {\n#{_1}\n}" }
 end
 
 def debug(sig)
