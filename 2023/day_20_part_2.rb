@@ -199,5 +199,5 @@ end
   end
 
   found.each_cons(2).map { _2 - _1 }.first
-  # Multiple the primes - Chinese remainder theorem??
+  # Multiple the primes
 end.reduce(:*).then { puts _1 }
