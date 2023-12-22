@@ -4,6 +4,7 @@ require "matrix"
 V = Vector
 
 start = nil
+count = ARGV.shift.to_i
 GRID = ARGF.each_line.map(&:chomp).each_with_object(Set.new).with_index do |(line, h), y|
   line.chars.each_with_index do |char, x|
     h << V[x, y] if ".S".include?(char)
@@ -14,13 +15,11 @@ end
 XRANGE = Range.new(*GRID.map { _1[0] }.minmax)
 YRANGE = Range.new(*GRID.map { _1[1] }.minmax)
 
-pp GRID
-
-def debug(positions = Set.new)
+def debug(distances)
   YRANGE.map do |y|
     XRANGE.map do |x|
       pos = V[x, y]
-      if positions.include?(pos) then "O"
+      if distances.key?(pos) then distances[pos]
       elsif GRID.include?(pos) then "."
       else
         "#"
@@ -29,12 +28,32 @@ def debug(positions = Set.new)
   end.join("\n") + "\n\n"
 end
 
-puts debug(Set[start])
-
 DIRECTIONS = [V[0, 1], V[0, -1], V[1, 0], V[-1, 0]]
 
-# Any square can be revisited if it has an even step count
+distances = Hash.new { Float::INFINITY }
+distances[start] = 0
+heads = [[start, 0]]
 
-# Visit each surrounding square
-# Mark the steps required to get there
-# If not visited previously add to the loop
+loop do
+  heads = heads.flat_map do |(head, distance)|
+    distance += 1
+    DIRECTIONS
+      .map { head + _1 }
+      .select { GRID.include?(_1) }
+      .select do |pos|
+        if distances[pos] > distance
+          distances[pos] = distance if distance.even?
+          true
+        else
+          false
+        end
+      end
+      .map { [_1, distance] }
+  end
+
+  break if heads.empty?
+end
+
+puts debug(distances.map.select { _2 <= count }.to_h)
+
+pp distances.map.select { _2 <= count }.size
