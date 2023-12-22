@@ -35,10 +35,24 @@ def debug(distances)
 end
 
 DIRECTIONS = [V[0, 1], V[0, -1], V[1, 0], V[-1, 0]]
+DIALOGONAL_DIRECTIONS = [V[-1, -1], V[1, -1], V[1, 1], V[-1, 1]]
 
 r = 0
 
 diffs = []
+
+counts = {
+  V[0, 1] => [],
+  V[0, -1] => [],
+  V[1, 0] => [],
+  V[-1, 0] => [],
+  V[-1, -1] => [],
+  V[1, -1] => [],
+  V[1, 1] => [],
+  V[-1, 1] => [],
+  even: [],
+  odd: []
+}
 
 until r == 100
   distances = Hash.new { Float::INFINITY }
@@ -67,28 +81,44 @@ until r == 100
     break if heads.empty?
   end
   total = distances.map.select { _2 <= count }.size
-  puts count
-  puts total
+  puts "count=#{count}"
+  puts "total=#{total}"
+  puts "size=#{XRANGE.max}"
+  full = [(count - XRANGE.max - 1) / (XRANGE.max + 1), 0].max
+  puts "full=#{full}"
+  puts "full_count=#{(full + 1)**2 + 1}"
   puts debug(distances.map.select { _2 <= count }.to_h)
   # pp [r, count, (r + 1)**2, (r + 1)**2 - count]
   diffs << (r + 1)**2 - count
 
+  if r >= XRANGE.max / 2 + 1 && r < (XRANGE.max + 1) * 3
+    # Start collecting ends
+    DIRECTIONS.each do |dir|
+      c = distances.map.select do |(pos)|
+        pos -= (dir * (XRANGE.max + 1))
+        XRANGE.include?(pos[0]) && YRANGE.include?(pos[1])
+      end.select { _2 <= count }.size
+      counts[dir] << c
+    end
+  end
+
+  if r > XRANGE.max + 1 && r < (XRANGE.max + 1) * 4
+    # Start collecting ends
+    DIALOGONAL_DIRECTIONS.each do |dir|
+      c = distances.map.select do |(pos)|
+        pos -= (dir * (XRANGE.max + 1))
+        XRANGE.include?(pos[0]) && YRANGE.include?(pos[1])
+      end.select { _2 <= count }.size
+      counts[dir] << c
+    end
+  end
+
+  break if full == 4
+
   r += 1
 end
 
-diffs
-  .each_cons(2)
-  .map { _2 - _1 }
-  .tap { pp _1 }
-  .each_cons(2)
-  .map { _2 - _1 }
-  .tap { pp _1 }
-  .each_cons(2)
-  .map { _2 - _1 }
-  .tap { pp _1 }
-  .each_cons(2)
-  .map { _2 - _1 }
-  .tap { pp _1 }
+pp counts
 
 exit
 
@@ -123,16 +153,6 @@ pp distances.map.select { _2 <= count }.size
   # puts debug(ring)
 end
 
-# pp distances.select { _1[0] == 0 }
-# pp distances.select { _1[0] == 0 }.sort_by { _1[0][1] }.map { [_1[0][1], _1[1]] }
-# pp distances.select { _1[0] == 1 }.sort_by { _1[0][1] }.map { [_1[0][1], _1[1]] }
-
-# Even 1 + 8 * 1 + 8 * 2 + 8 * 3 -> 1 + 4 * n ( n + 1 )
-# Odd  8 * 1 + 4 + 8 * 2 + 4 -> 4 * n ( n + 1 ) + 4 n
-
-# 4 + 11 + 16
-
-# See how a shell changes over time
-# Are the shell sizes consistent by their mod distance from the center?
-# Do we need to take account of the distance from the edge?
-# Can we sum the shells or are there too many
+# center
+# + (r - len * 2 - len / 2) ** 2 even and odd
+#
