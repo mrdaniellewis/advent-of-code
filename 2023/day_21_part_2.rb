@@ -15,7 +15,8 @@ end
 
 XRANGE = Range.new(*GRID.map { _1[0] }.minmax)
 YRANGE = Range.new(*GRID.map { _1[1] }.minmax)
-RIGHT = Matrix[[0, -1], [1, 0]]
+SIZE = XRANGE.max + 1
+START = start
 
 def debug(distances)
   yrange = Range.new(*distances.keys.map { _1[1] }.minmax)
@@ -35,53 +36,71 @@ def debug(distances)
 end
 
 DIRECTIONS = [V[0, 1], V[0, -1], V[1, 0], V[-1, 0]]
-DIALOGONAL_DIRECTIONS = [V[-1, -1], V[1, -1], V[1, 1], V[-1, 1]]
+
+def walk(r)
+  distances = Hash.new { Float::INFINITY }
+  distances[START] = 0 if r.even?
+  heads = [[START, 0]]
+  loop do
+    heads = heads.flat_map do |(head, distance)|
+      distance += 1
+      next [] if distance > r
+
+      DIRECTIONS
+        .map { head + _1 }
+        .select { GRID.include?(V[_1[0] % (XRANGE.max + 1), _1[1] % (YRANGE.max + 1)]) }
+        .select do |pos|
+          if distances[pos] > distance
+            distances[pos] = distance if (distance.even? && r.even?) || (distance.odd? && r.odd?)
+            true
+          else
+            false
+          end
+        end
+        .map { [_1, distance] }
+    end
+
+    # puts distances.values.tally
+
+    break if heads.empty?
+  end
+  distances
+end
+
+period = (count - (SIZE / 2)) % SIZE
+iteration = count / SIZE + 1
+
+sizes = []
+
+7.times do |c|
+  test = (SIZE / 2) + c * SIZE + period
+  distances = walk(test)
+  # puts debug(distances)
+  pp [test, distances.size]
+  sizes << distances.size
+end
+
+polynomial = (0..2).each_with_object([sizes]) do |_, sum|
+  sum << sum.last.each_cons(2).map { _2 - _1 }
+end
+
+pp polynomial
+
+values = polynomial.slice(0..-3).map(&:last).reverse
+add = polynomial[2].last
+
+count = 7
+until count == iteration
+  values = values.each_with_object([]) { _2 << (_2.last || add) + _1 }
+  pp values
+  count += 1
+end
+
+pp values.last
+
+exit
 
 r = 0
-
-diffs = []
-
-counts = {
-  V[0, 1] => [],
-  V[0, -1] => [],
-  V[1, 0] => [],
-  V[-1, 0] => [],
-  V[-1, -1] => [],
-  V[1, -1] => [],
-  V[1, 1] => [],
-  V[-1, 1] => [],
-  even: [],
-  odd: []
-}
-
-SIZE = XRANGE.max + 1
-
-distances = Hash.new { Float::INFINITY }
-distances[start] = 0 if count.even?
-heads = [[start, 0]]
-loop do
-  heads = heads.flat_map do |(head, distance)|
-    distance += 1
-    next [] if distance > count
-
-    DIRECTIONS
-      .map { head + _1 }
-      .select { GRID.include?(V[_1[0] % (XRANGE.max + 1), _1[1] % (YRANGE.max + 1)]) }
-      .select do |pos|
-        if distances[pos] > distance
-          distances[pos] = distance if (distance.even? && count.even?) || (distance.odd? && count.odd?)
-          true
-        else
-          false
-        end
-      end
-      .map { [_1, distance] }
-  end
-
-  puts distances.values.tally
-
-  break if heads.empty?
-end
 
 puts debug(distances.map.select { _2 <= count }.to_h)
 
@@ -225,3 +244,5 @@ while x < target
   total += x * 4
   cursor += 2
 end
+
+# (c - SIZE / 2) % SIZE
