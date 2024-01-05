@@ -21,10 +21,15 @@ class Line
 
   # https://stackoverflow.com/a/73079842
   def self.intersections(line1, line2)
-    m = Matrix.columns([line1.slope, -line2.slope])
+    m = Matrix.columns([Vector[*line1.slope.to_a.take(2)], -Vector[*line2.slope.to_a.take(2)]])
     return nil if m.determinant.zero?
 
-    m.inverse * (line2.base - line1.base)
+    parts = m.inverse * (Vector[*line2.base.to_a.take(2)] - Vector[*line1.base.to_a.take(2)])
+    return parts unless line1.slope.size >= 3
+
+    (2...line1.slope.size).all? do |axis|
+      line1.base[axis] + line1.slope[axis] * parts[0] == line2.base[axis] + line2.slope[axis] * parts[1]
+    end && parts
   end
 
   def intersection_3d(line)
@@ -72,6 +77,32 @@ hails = ARGF.each_line.map(&:chomp).map do |line|
     V[*velocity.split(", ").map(&:to_i)]
   )
 end
+
+(1..1000).each do |t1|
+  pp "t1=#{t1}"
+  (1..1000).each do |t2|
+    pp "t2=#{t2}"
+    hails
+      .permutation(2)
+      .each do |h1, h2|
+        h1 = h1.start + h1.velocity * t1
+        h2 = h2.start + h2.velocity * t2
+        b = h1
+        v = h2 - h1
+
+        found = hails.all? do |h|
+          Line.intersections(h.to_line, Line.new(b, v))
+        end
+
+        if found
+          pp [h1, h2, t1, t2, b, v]
+          exit
+        end
+      end
+  end
+end
+
+exit
 
 hails
   .permutation(2)
