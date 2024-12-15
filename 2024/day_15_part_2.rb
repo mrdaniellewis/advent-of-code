@@ -37,17 +37,17 @@ def draw_grid(grid)
   end.join("\n") + "\n\n")
 end
 
-def push(grid, from, dir)
+def push(grid, from, dir, test: false)
   move_to = from + dir
   target = grid[move_to]
   if dir[1].zero? && ["[", "]"].include?(target)
-    target = push(grid, move_to, dir)
+    target = push(grid, move_to, dir, test:)
   elsif ["[", "]"].include?(target)
     other = target == "]" ? V[-1, 0] : V[1, 0]
-    test_grid = grid.dup
-    if push(test_grid, move_to, dir).nil? && push(test_grid, move_to + other, dir).nil?
-      push(grid, move_to, dir)
-      push(grid, move_to + other, dir)
+    test_grid = test ? grid : grid.dup
+    if push(test_grid, move_to, dir, test: true).nil? && push(test_grid, move_to + other, dir, test: true).nil?
+      push(grid, move_to, dir, test:)
+      push(grid, move_to + other, dir, test:)
       target = nil
     end
   end
