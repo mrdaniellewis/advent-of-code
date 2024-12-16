@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "debug"
 require "matrix"
 V = Vector
 
@@ -22,69 +23,90 @@ DIRECTIONS = {
 
 Position = Data.define(:position, :direction)
 
-def draw_grid(positions)
-  indexed = positions.to_h { [_1.position, _1] }
+def draw_grid(highlight)
   print(Y_RANGE.map do |y|
     X_RANGE.map do |x|
-      pos = indexed[V[x, y]]
-      next DIRECTIONS[pos.direction] if pos
+      next "O" if highlight.include?(V[x, y])
 
       GRID.include?(V[x, y]) ? "#" : "."
     end.join("")
   end.join("\n") + "\n\n")
 end
 
-class DepthFirst
+class MinPriorityQueue
+  QueueItem = Data.define(:item, :cost)
+
+  def initialize
+    @list = []
+  end
+
+  def push(cost:, value:)
+    @list.insert(@list.find_index { _1.cost > cost } || -1, QueueItem.new(value, cost))
+  end
+
+  def next
+    raise StopIteration if @list.empty?
+
+    @list.shift.item
+  end
+end
+
+class BreadthFirst
   attr_reader :nodes
 
   Edge = Data.define(:from, :to, :cost)
+  Node = Data.define(:cost, :parents)
+  VISITED = true
 
   def initialize(nodes)
     @nodes = nodes
   end
 
-  def finish?(edge)
-    edge.to.position == FINISH
-  end
-
-  def paths(start)
-    Enumerator.new do |y|
-      position = start
-      stack = [[[], edge_enumerator(position), 0]]
-      best_costs = Hash.new { Float::INFINITY }
-      best_cost = Float::INFINITY
+  def build(start)
+    graph[start] = Node.new(0, [])
+    queue.push(cost: 0, value: start)
+    loop do
+      position = queue.next
+      enum = edges(position).to_enum
       loop do
-        break if stack.empty?
-
-        path, edges, current_cost = stack.last
-        edge = edges.next
-        current_cost += edge.cost
-        next stack.pop if best_cost < current_cost
-
-        current_best = best_costs[edge]
-        next stack.pop if current_best < current_cost
-
-        best_costs[edge] = current_cost
-
-        if finish?(edge)
-          best_cost = current_cost
-          y << [[start, *path.map(&:to), edge.to], current_cost]
-        else
-          stack << [[*path, edge], edge_enumerator(edge.to), current_cost]
-        end
-      rescue StopIteration
-        stack.pop
+        edge = enum.next
+        visit(edge)
       end
     end
+
+    graph
   end
 
-  def edge_enumerator(from)
+  private
+
+  def visit(edge)
+    edge => { cost: }
+    graph[edge.from] => { cost: parent_total }
+    total = cost + parent_total
+    queue.push(cost: total, value: edge.to) unless graph.key?(edge.to)
+    graph[edge.to] => { cost: current_cost, parents: current_parents}
+    parents = [edge.from]
+    parents |= current_parents if current_cost == total
+    graph[edge.to] = Node.new(total, parents) if current_cost >= total
+  end
+
+  def graph
+    @graph ||= Hash.new { Node.new(Float::INFINITY, Set.new) }
+  end
+
+  def queue
+    @queue ||= MinPriorityQueue.new
+  end
+
+  def edges(from)
+    return [] if from.position == FINISH
+
     DIRECTIONS.keys.filter_map do |dir|
       to = Position.new(from.position + dir, dir)
       next unless allowed?(from, to)
 
       Edge.new(from, to, cost(from, to))
-    end.sort_by(&:cost).to_enum
+    end
   end
 
   def allowed?(from, to)
@@ -99,16 +121,23 @@ class DepthFirst
   end
 end
 
-DepthFirst
-  .new(GRID)
-  .paths(Position.new(START, V[1, 0]))
-  .to_a
-  .then do |found|
-    min = found.map { _1[1] }.min
-    found.select { _1[1] == min }
+BreadthFirst.new(GRID).build(Position.new(START, V[1, 0])).then do |graph|
+  min = graph.select { _1.position == FINISH }.values.map(&:cost).min
+  queue = graph
+    .select { |k, v| k.position == FINISH && v.cost == min }
+    .values
+    .map(&:parents)
+    .map(&:to_a)
+    .inject(:|)
+
+  positions = Set.new([FINISH, *queue.map(&:position)])
+  loop do
+    break if queue.empty?
+
+    graph[queue.pop].parents.each do |p|
+      positions << p.position
+      queue << p
+    end
   end
-  .map { _1[0] }
-  .flatten
-  .map(&:position)
-  .uniq
-  .then { p _1.count }
+  pp positions.uniq.length
+end
